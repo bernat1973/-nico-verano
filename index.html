@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Nico — Verano Fútbol</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap');
+
+  :root {
+    --verde: #00E676;
+    --verde-dark: #00C853;
+    --naranja: #FF6D00;
+    --fondo: #0A0E0A;
+    --fondo2: #111711;
+    --fondo3: #1A221A;
+    --texto: #E8F5E9;
+    --texto2: #9E9E9E;
+    --rojo: #FF1744;
+    --azul: #40C4FF;
+    --amarillo: #FFD740;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--fondo2);
+    border-top: 1px solid #1E2A1E;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+  .nav-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; color: var(--texto2);
+    font-family: 'Barlow', sans-serif; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    cursor: pointer; padding: 6px 16px; border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .nav-btn.active { color: var(--verde); }
+  .nav-btn svg { width: 22px; height: 22px; }
+
+  /* SCREENS */
+  .screen { display: none; padding: 0 0 80px 0; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* HOME */
+  .home-header {
+    background: linear-gradient(135deg, #0D1A0D 0%, #1A2E0F 100%);
+    padding: 50px 20px 30px;
+    position: relative; overflow: hidden;
+  }
+  .home-header::before {
+    content: '⚽';
+    position: absolute; right: -10px; top: 20px;
+    font-size: 100px; opacity: 0.06;
+    transform: rotate(-15deg);
+  }
+  .home-saludo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--verde); margin-bottom: 6px;
+  }
+  .home-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 42px; font-weight: 900;
+    line-height: 1; color: var(--texto);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .home-fecha {
+    font-size: 13px; color: var(--texto2);
+    margin-top: 6px; font-weight: 500;
+  }
+
+  /* PROGRESO SEMANAS */
+  .semana-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,230,118,0.1);
+    border: 1px solid rgba(0,230,118,0.3);
+    border-radius: 20px; padding: 6px 14px;
+    margin-top: 16px;
+    font-size: 13px; font-weight: 600; color: var(--verde);
+  }
+
+  /* TARJETA SESIÓN HOY */
+  .sesion-hoy {
+    margin: 20px 16px 0;
+    background: var(--fondo2);
+    border-radius: 20px;
+    border: 1px solid #1E2A1E;
+    overflow: hidden;
+  }
+  .sesion-hoy-header {
+    background: linear-gradient(135deg, var(--verde) 0%, var(--verde-dark) 100%);
+    padding: 16px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sesion-hoy-titulo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 800;
+    text-transform: uppercase; color: #000; letter-spacing: 0.5px;
+  }
+  .sesion-hoy-tipo {
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px; padding: 4px 10px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: #000;
+  }
+  .sesion-hoy-body { padding: 16px 20px; }
+  .sesion-preview {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 16px;
+  }
+  .sesion-preview-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; color: var(--texto2);
+  }
+  .sesion-preview-item span:first-child {
+    font-size: 16px; width: 24px; text-align: center;
+  }
+  .btn-iniciar {
+    width: 100%;
+    background: var(--verde);
+    color: #000; border: none;
+    border-radius: 14px; padding: 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-iniciar:active { transform: scale(0.97); background: var(--verde-dark); }
+
+  /* DESCANSO */
+  .descanso-card {
+    margin: 20px 16px 0;
+    background: var(--fondo2);
+    border-radius: 20px;
+    border: 1px solid #1E2A1E;
+    padding: 30px 20px;
+    text-align: center;
+  }
+  .descanso-emoji { font-size: 60px; margin-bottom: 12px; }
+  .descanso-titulo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px; font-weight: 800;
+    text-transform: uppercase; color: var(--azul);
+    margin-bottom: 8px;
+  }
+  .descanso-texto { color: var(--texto2); font-size: 14px; line-height: 1.5; }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin: 16px 16px 0;
+  }
+  .stat-card {
+    background: var(--fondo2);
+    border: 1px solid #1E2A1E;
+    border-radius: 16px; padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 900;
+    color: var(--verde); line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px; color: var(--texto2);
+    font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-top: 4px;
+  }
+
+  /* MENSAJE ÁNIMO */
+  .animo-card {
+    margin: 16px 16px 0;
+    background: linear-gradient(135deg, rgba(255,109,0,0.1) 0%, rgba(255,109,0,0.05) 100%);
+    border: 1px solid rgba(255,109,0,0.3);
+    border-radius: 16px; padding: 14px 16px;
+    font-size: 14px; color: var(--texto);
+    line-height: 1.5;
+  }
+  .animo-card strong { color: var(--naranja); }
+
+  /* SECCIÓN TITLE */
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--texto2); padding: 20px 16px 10px;
+  }
+
+  /* SESION SCREEN */
+  .sesion-topbar {
+    background: var(--fondo2);
+    padding: 50px 16px 16px;
+    border-bottom: 1px solid #1E2A1E;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .btn-back {
+    background: var(--fondo3); border: none; border-radius: 12px;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--texto);
+  }
+  .sesion-topbar-info { flex: 1; }
+  .sesion-topbar-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .sesion-topbar-meta { font-size: 12px; color: var(--texto2); margin-top: 2px; }
+
+  /* PROGRESS BAR */
+  .progress-bar-container {
+    margin: 16px 16px 0;
+    background: var(--fondo3); border-radius: 10px; height: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--verde);
+    border-radius: 10px; transition: width 0.4s ease;
+  }
+  .progress-text {
+    display: flex; justify-content: space-between;
+    padding: 6px 16px 0;
+    font-size: 11px; color: var(--texto2); font-weight: 600;
+  }
+
+  /* EJERCICIO CARD */
+  .ejercicio-container { padding: 16px; }
+  .ejercicio-card {
+    background: var(--fondo2);
+    border: 1px solid #1E2A1E;
+    border-radius: 20px; overflow: hidden;
+  }
+  .ejercicio-header {
+    padding: 20px 20px 16px;
+  }
+  .ejercicio-categoria {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .ejercicio-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 30px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  .ejercicio-carga {
+    display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .carga-badge {
+    background: rgba(0,230,118,0.1);
+    border: 1px solid rgba(0,230,118,0.3);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 13px; font-weight: 600; color: var(--verde);
+  }
+  .ejercicio-desc {
+    padding: 0 20px 16px;
+    font-size: 14px; color: var(--texto2); line-height: 1.6;
+  }
+  .ejercicio-consejo {
+    margin: 0 20px 16px;
+    background: rgba(255,215,64,0.08);
+    border-left: 3px solid var(--amarillo);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 12px;
+    font-size: 13px; color: var(--amarillo); line-height: 1.5;
+  }
+  .ejercicio-consejo strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+  /* VIDEO */
+  .video-toggle {
+    margin: 0 20px 16px;
+    background: rgba(64,196,255,0.08);
+    border: 1px solid rgba(64,196,255,0.2);
+    border-radius: 12px; overflow: hidden;
+    cursor: pointer; color: var(--azul);
+    transition: all 0.2s;
+    text-decoration: none; display: block;
+  }
+  .video-toggle:active { background: rgba(64,196,255,0.15); }
+  .video-thumb-wrap {
+    position: relative; width: 100%;
+    aspect-ratio: 16/9; overflow: hidden;
+  }
+  .video-thumb-wrap img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .video-play-icon {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; height: 42px;
+    background: rgba(255,0,0,0.85);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-play-icon svg { width: 24px; height: 24px; }
+  .video-toggle-label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    font-size: 13px; font-weight: 600; color: var(--azul);
+  }
+
+  /* NAVEGACIÓN EJERCICIOS */
+  .ejercicio-nav {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 16px 16px;
+  }
+  .btn-nav {
+    padding: 14px; border: none; border-radius: 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-nav:active { transform: scale(0.97); }
+  .btn-anterior { background: var(--fondo3); color: var(--texto2); }
+  .btn-siguiente { background: var(--verde); color: #000; }
+  .btn-siguiente.ultimo { background: var(--naranja); }
+  .btn-nav-full {
+    padding: 16px; border: none; border-radius: 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: pointer; background: var(--naranja); color: #fff;
+    width: calc(100% - 32px); margin: 0 16px 16px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.15s;
+  }
+  .btn-nav-full:active { transform: scale(0.97); }
+
+  /* COMPLETAR SCREEN */
+  .completar-container { padding: 20px 16px; }
+  .completar-titulo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 40px; font-weight: 900;
+    text-transform: uppercase; color: var(--verde);
+    text-align: center; line-height: 1;
+  }
+  .completar-sub {
+    text-align: center; color: var(--texto2);
+    font-size: 15px; margin-top: 6px; margin-bottom: 24px;
+  }
+
+  /* RPE */
+  .rpe-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--texto2); margin-bottom: 12px;
+  }
+  .rpe-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px; margin-bottom: 20px;
+  }
+  .rpe-btn {
+    aspect-ratio: 1; border: 2px solid #1E2A1E;
+    border-radius: 14px; background: var(--fondo2);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 800; color: var(--texto2);
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rpe-btn.selected {
+    border-color: var(--verde); color: var(--verde);
+    background: rgba(0,230,118,0.1);
+  }
+  .rpe-desc {
+    text-align: center; font-size: 13px; color: var(--texto2);
+    margin-bottom: 20px; min-height: 20px;
+  }
+
+  /* MOLESTIAS */
+  .molestias-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--texto2); margin-bottom: 12px;
+  }
+  .molestias-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 20px;
+  }
+  .molestia-btn {
+    padding: 12px 8px; border: 2px solid #1E2A1E;
+    border-radius: 12px; background: var(--fondo2);
+    font-size: 13px; font-weight: 600; color: var(--texto2);
+    cursor: pointer; text-align: center; transition: all 0.15s;
+  }
+  .molestia-btn.selected {
+    border-color: var(--rojo); color: var(--rojo);
+    background: rgba(255,23,68,0.08);
+  }
+  .molestia-btn.ninguna.selected {
+    border-color: var(--verde); color: var(--verde);
+    background: rgba(0,230,118,0.08);
+  }
+
+  /* NOTA */
+  .nota-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--texto2); margin-bottom: 10px;
+  }
+  .nota-input {
+    width: 100%; background: var(--fondo2);
+    border: 2px solid #1E2A1E; border-radius: 14px;
+    padding: 14px 16px; color: var(--texto);
+    font-family: 'Barlow', sans-serif; font-size: 14px;
+    resize: none; height: 80px;
+    margin-bottom: 20px;
+  }
+  .nota-input:focus { outline: none; border-color: rgba(0,230,118,0.4); }
+  .nota-input::placeholder { color: var(--texto2); }
+
+  /* BTN WHATSAPP */
+  .btn-whatsapp {
+    width: 100%; padding: 18px;
+    background: #25D366; border: none; border-radius: 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.15s; margin-bottom: 10px;
+  }
+  .btn-whatsapp:active { transform: scale(0.97); }
+
+  /* HISTORIAL */
+  .historial-container { padding: 0 16px 16px; }
+  .semana-bloque { margin-bottom: 24px; }
+  .semana-bloque-titulo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--texto2); margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .semana-pct {
+    font-size: 13px; color: var(--verde); font-weight: 700;
+  }
+  .dias-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .dia-chip {
+    aspect-ratio: 1; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .dia-chip.completado { background: var(--verde); color: #000; }
+  .dia-chip.descanso { background: rgba(64,196,255,0.15); color: var(--azul); font-size: 10px; }
+  .dia-chip.pendiente { background: var(--fondo3); color: var(--texto2); }
+  .dia-chip.hoy { background: rgba(0,230,118,0.2); color: var(--verde); border: 2px solid var(--verde); }
+
+  /* HISTORIAL DETALLE */
+  .historial-item {
+    background: var(--fondo2); border: 1px solid #1E2A1E;
+    border-radius: 16px; padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .historial-item-fecha {
+    font-size: 12px; color: var(--texto2); margin-bottom: 3px;
+  }
+  .historial-item-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .historial-item-rpe {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px; font-weight: 900;
+  }
+
+  /* PLAN SCREEN */
+  .plan-container { padding: 0 16px 16px; }
+  .bloque-card {
+    background: var(--fondo2); border: 1px solid #1E2A1E;
+    border-radius: 16px; margin-bottom: 12px; overflow: hidden;
+  }
+  .bloque-header {
+    padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer;
+  }
+  .bloque-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 800;
+    text-transform: uppercase;
+  }
+  .bloque-semanas {
+    font-size: 12px; color: var(--texto2); font-weight: 600;
+  }
+  .bloque-body { padding: 0 16px 14px; display: none; }
+  .bloque-body.open { display: block; }
+  .bloque-dia {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-top: 1px solid #1E2A1E;
+  }
+  .bloque-dia-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--texto2); min-width: 36px;
+    text-transform: uppercase;
+  }
+  .bloque-dia-info { flex: 1; }
+  .bloque-dia-tipo {
+    font-size: 13px; font-weight: 600; color: var(--texto);
+  }
+  .bloque-dia-ejercs {
+    font-size: 12px; color: var(--texto2); margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  /* ANIMACIONES */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active { animation: fadeSlideUp 0.3s ease; }
+
+  /* STREAK */
+  .streak-row {
+    display: flex; gap: 6px; align-items: center;
+    padding: 12px 16px;
+  }
+  .streak-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--fondo3);
+  }
+  .streak-dot.done { background: var(--verde); }
+
+</style>
+</head>
+<body>
+
+<!-- ===== SCREEN: HOME ===== -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="home-saludo" id="saludo-texto">Buenos días</div>
+    <div class="home-nombre">Nico 💪</div>
+    <div class="home-fecha" id="fecha-hoy"></div>
+    <div class="semana-badge" id="semana-badge">
+      <span>📅</span>
+      <span id="semana-badge-texto">Semana 1 de 10</span>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-completadas">0</div>
+      <div class="stat-label">Sesiones</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-racha">0</div>
+      <div class="stat-label">Racha 🔥</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-dias">0</div>
+      <div class="stat-label" id="stat-dias-label">Días restantes</div>
+    </div>
+  </div>
+
+  <div id="home-sesion-area"></div>
+
+  <div class="animo-card" id="animo-card"></div>
+
+  <div class="section-title">Esta semana</div>
+  <div class="streak-row" id="streak-row"></div>
+</div>
+
+<!-- ===== SCREEN: SESIÓN ===== -->
+<div id="screen-sesion" class="screen">
+  <div class="sesion-topbar">
+    <button class="btn-back" onclick="volverHome()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <div class="sesion-topbar-info">
+      <div class="sesion-topbar-nombre" id="sesion-nombre-top"></div>
+      <div class="sesion-topbar-meta" id="sesion-meta-top"></div>
+    </div>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+  <div class="progress-text">
+    <span id="progress-actual"></span>
+    <span id="progress-total"></span>
+  </div>
+
+  <div class="ejercicio-container" id="ejercicio-container"></div>
+
+  <div class="ejercicio-nav" id="ejercicio-nav"></div>
+</div>
+
+<!-- ===== SCREEN: COMPLETAR ===== -->
+<div id="screen-completar" class="screen">
+  <div style="padding: 50px 16px 0; text-align:center; font-size:64px;">🎉</div>
+  <div class="completar-container">
+    <div class="completar-titulo">¡Sesión<br>completada!</div>
+    <div class="completar-sub" id="completar-nombre-sesion"></div>
+
+    <div class="rpe-label">¿Cómo ha ido el esfuerzo?</div>
+    <div class="rpe-grid" id="rpe-grid"></div>
+    <div class="rpe-desc" id="rpe-desc"></div>
+
+    <div class="molestias-label">¿Alguna molestia?</div>
+    <div class="molestias-grid" id="molestias-grid"></div>
+
+    <div class="nota-label">Nota opcional</div>
+    <textarea class="nota-input" id="nota-input" placeholder="Cómo te has sentido..."></textarea>
+
+    <button class="btn-whatsapp" onclick="enviarWhatsApp()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Enviar resumen a papá
+    </button>
+
+    <button onclick="irHome()" style="width:100%; padding:14px; background:var(--fondo2); border:1px solid #1E2A1E; border-radius:14px; color:var(--texto2); font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; cursor:pointer;">
+      Volver al inicio
+    </button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: HISTORIAL ===== -->
+<div id="screen-historial" class="screen">
+  <div style="padding: 50px 16px 16px;">
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; text-transform:uppercase;">Historial</div>
+    <div style="font-size:13px; color:var(--texto2); margin-top:4px;">Tu progreso este verano ⚽</div>
+  </div>
+  <div class="historial-container" id="historial-container"></div>
+</div>
+
+<!-- ===== SCREEN: PLAN ===== -->
+<div id="screen-plan" class="screen">
+  <div style="padding: 50px 16px 16px;">
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; text-transform:uppercase;">El Plan</div>
+    <div style="font-size:13px; color:var(--texto2); margin-top:4px;">10 semanas · 3-4 sesiones/semana</div>
+  </div>
+  <div class="plan-container" id="plan-container"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showScreen('home')" id="nav-home">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+    </svg>
+    Inicio
+  </button>
+  <button class="nav-btn" onclick="showScreen('historial')" id="nav-historial">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+    </svg>
+    Historial
+  </button>
+  <button class="nav-btn" onclick="showScreen('plan')" id="nav-plan">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    </svg>
+    Plan
+  </button>
+</nav>
+
+<script>
+// ============================================================
+// DATOS: EJERCICIOS
+// ============================================================
+const EJERCICIOS = {
+  // CALENTAMIENTO FIFA 11+
+  calentamiento: [
+    {
+      nombre: "Carrera suave", categoria: "Calentamiento", color: "#40C4FF",
+      series: "1 vuelta", tiempo: "2 min",
+      desc: "Trota suave durante 2 minutos. Mantén un ritmo cómodo, sin forzar. Activa el cuerpo poco a poco.",
+      consejo: "El calentamiento es sagrado. No te lo saltes aunque tengas prisa.",
+      video: null
+    },
+    {
+      nombre: "Cadera hacia fuera", categoria: "Calentamiento · FIFA 11+", color: "#40C4FF",
+      series: "2×10 rep", tiempo: "",
+      desc: "Camina hacia adelante levantando las rodillas y girándolas hacia fuera. Activa la cadera y los glúteos.",
+      consejo: "Mantén el torso recto. Eleva bien la rodilla antes de girar.",
+      video: null
+    },
+    {
+      nombre: "Cadera hacia dentro", categoria: "Calentamiento · FIFA 11+", color: "#40C4FF",
+      series: "2×10 rep", tiempo: "",
+      desc: "Igual que el anterior pero girando la rodilla hacia dentro. Trabaja la rotación interna de cadera.",
+      consejo: "Movimiento lento y controlado. No es un ejercicio explosivo.",
+      video: null
+    },
+    {
+      nombre: "Sentadilla con salto atrás", categoria: "Calentamiento · FIFA 11+", color: "#40C4FF",
+      series: "2×10 rep", tiempo: "",
+      desc: "Sentadilla profunda y al subir das un pequeño salto atrás. Activa piernas y coordinación.",
+      consejo: "Aterriza con las rodillas ligeramente flexionadas. Nunca con la rodilla recta.",
+      video: null
+    }
+  ],
+
+  // PLIOMETRÍA + SPRINTS
+  pliometria: [
+    {
+      nombre: "Saltos con dos pies", categoria: "Pliometría", color: "#00E676",
+      series: "3×8 rep", tiempo: "",
+      desc: "Salta verticalmente con los dos pies juntos. Busca altura máxima. Aterriza suave con rodillas flexionadas. Pausa breve entre cada salto.",
+      consejo: "Rodillas en línea con los pies al aterrizar. Nunca hacia dentro (valgo).",
+      video: "https://www.youtube.com/embed/tOYlHrvq0o0"
+    },
+    {
+      nombre: "Saltos con un pie", categoria: "Pliometría", color: "#00E676",
+      series: "3×6 rep cada pie", tiempo: "",
+      desc: "Salta sobre un solo pie. Busca altura y control. Alterna el pie de apoyo. Más difícil que parece.",
+      consejo: "Si pierdes el equilibrio al aterrizar, reduce la altura del salto hasta controlarlo.",
+      video: "https://www.youtube.com/embed/tOYlHrvq0o0"
+    },
+    {
+      nombre: "Saltos horizontales", categoria: "Pliometría", color: "#00E676",
+      series: "3×6 rep", tiempo: "",
+      desc: "Salta hacia adelante buscando distancia máxima. Usa los brazos para impulsarte. Aterriza con control sobre las dos piernas.",
+      consejo: "El objetivo es distancia, no altura. Extiende bien los tobillos al despegar.",
+      video: "https://www.youtube.com/embed/tOYlHrvq0o0"
+    },
+    {
+      nombre: "Sprint 10 metros", categoria: "Velocidad", color: "#FFD740",
+      series: "6×10m", tiempo: "Rec: 45 seg",
+      desc: "Marca dos puntos a 10 metros de distancia. Arranca desde parado y accelera al máximo. Recupera 45 segundos caminando antes del siguiente.",
+      consejo: "En los primeros pasos inclínate hacia adelante. La velocidad máxima llega entre los 6 y 10 metros.",
+      video: null
+    },
+    {
+      nombre: "Sprint 20 metros", categoria: "Velocidad", color: "#FFD740",
+      series: "4×20m", tiempo: "Rec: 60 seg",
+      desc: "Igual que el sprint de 10m pero más largo. A los 10m ya deberías estar en velocidad máxima — mantenla hasta el final.",
+      consejo: "Levanta bien las rodillas y usa los brazos. El sprint es un ejercicio técnico, no solo de fuerza.",
+      video: null
+    },
+    {
+      nombre: "Cambios de dirección", categoria: "Velocidad", color: "#FFD740",
+      series: "4×8 cambios", tiempo: "Rec: 45 seg",
+      desc: "Coloca 3 conos o referencias en línea a 3m cada uno. Avanza y vuelve tocando cada cono. Máxima velocidad en los cambios.",
+      consejo: "El secreto está en la planta del pie: apoya el borde exterior al girar para no perder velocidad.",
+      video: null
+    }
+  ],
+
+  // FUERZA FUNCIONAL
+  fuerza: [
+    {
+      nombre: "Sentadilla", categoria: "Fuerza · Tren inferior", color: "#FF6D00",
+      series: "3×12 rep", tiempo: "",
+      desc: "Pies a la anchura de los hombros. Baja hasta que los muslos estén paralelos al suelo. Sube controlando. Con peso corporal es suficiente en esta fase.",
+      consejo: "Rodillas en línea con los dedos de los pies. Mirada al frente. No dejes que la espalda se curve.",
+      video: null
+    },
+    {
+      nombre: "Zancada caminando", categoria: "Fuerza · Tren inferior", color: "#FF6D00",
+      series: "3×10 rep cada pierna", tiempo: "",
+      desc: "Da un paso largo hacia adelante y baja la rodilla trasera casi al suelo. Sube y avanza con el otro pie. 10 pasos por lado.",
+      consejo: "La rodilla delantera no debe sobrepasar la punta del pie. El torso siempre recto.",
+      video: null
+    },
+    {
+      nombre: "Hip Thrust", categoria: "Fuerza · Glúteos", color: "#FF6D00",
+      series: "3×15 rep", tiempo: "",
+      desc: "Apoya la espalda en el sofá o una silla baja. Pies apoyados en el suelo. Sube la cadera hasta que el cuerpo forme una línea recta. Aprieta el glúteo arriba.",
+      consejo: "Aguanta 1 segundo arriba apretando fuerte el glúteo. Es más efectivo que subir y bajar rápido.",
+      video: "https://www.youtube.com/embed/GpJYbtAgtAk"
+    },
+    {
+      nombre: "Curl Nórdico asistido", categoria: "Fuerza · Isquiotibiales", color: "#FF6D00",
+      series: "3×5 rep", tiempo: "",
+      desc: "Arrodíllate y mete los pies debajo del sofá o pide que te sujeten. Baja el cuerpo hacia adelante lo más despacio posible usando los isquiotibiales. Usa las manos para frenar al final.",
+      consejo: "Este ejercicio es difícil. Al principio llegarás poco antes de la mitad — está bien. La clave es bajar LENTO.",
+      video: "https://www.youtube.com/embed/txO5zibJBuk"
+    },
+    {
+      nombre: "Plancha frontal", categoria: "Fuerza · Core", color: "#FF6D00",
+      series: "3×30 seg", tiempo: "",
+      desc: "Apoya antebrazos y puntas de los pies. El cuerpo forma una línea recta desde la cabeza hasta los talones. Mantén la posición sin que la cadera caiga.",
+      consejo: "Aprieta el abdomen como si te fuera a dar un puñetazo. Respira normal durante toda la plancha.",
+      video: null
+    },
+    {
+      nombre: "Plancha lateral", categoria: "Fuerza · Core lateral", color: "#FF6D00",
+      series: "3×20 seg cada lado", tiempo: "",
+      desc: "Apoya un antebrazo y el borde del pie. Levanta la cadera formando una línea recta. Muy importante para la estabilidad de cadera en el fútbol.",
+      consejo: "Caderas completamente alineadas. Si te tiembla mucho, apoya la rodilla en lugar del pie.",
+      video: null
+    }
+  ],
+
+  // AERÓBICO
+  aerobico: [
+    {
+      nombre: "Carrera continua", categoria: "Aeróbico", color: "#9C27B0",
+      series: "1 bloque", tiempo: "20-25 min",
+      desc: "Sal a correr a un ritmo cómodo donde puedas hablar sin ahogarte. No es un sprint. Si vas en bici o nadas también cuenta — lo importante es mover el corazón.",
+      consejo: "El ritmo correcto: si puedes cantar, vas demasiado lento. Si no puedes hablar, demasiado rápido.",
+      video: null
+    },
+    {
+      nombre: "Intervalos suaves", categoria: "Aeróbico interválico", color: "#9C27B0",
+      series: "6×1 min", tiempo: "Rec: 1 min caminando",
+      desc: "Corre 1 minuto a un ritmo moderado-fuerte (no sprint). Camina 1 minuto. Repite 6 veces. Total: 12 minutos de trabajo.",
+      consejo: "En los minutos de carrera deberías ir al 70-75% de tu máximo. Nota que cuesta pero no es insoportable.",
+      video: null
+    }
+  ],
+
+  // TÉCNICA BALÓN
+  tecnica: [
+    {
+      nombre: "Toque con la pared", categoria: "Técnica · Balón", color: "#FF1744",
+      series: "2×5 min", tiempo: "",
+      desc: "A 3-4 metros de una pared. Toca el balón contra la pared y controla el rebote. Alterna pie derecho e izquierdo. 5 minutos por serie, pausa de 1 min entre series.",
+      consejo: "Varía: toque con el interior, con el exterior, con la punta. Tu pie malo necesita el doble de trabajo.",
+      video: null
+    },
+    {
+      nombre: "Conducción con conos", categoria: "Técnica · Balón", color: "#FF1744",
+      series: "10 repeticiones", tiempo: "",
+      desc: "Coloca 6 conos (o botellas, ropa...) en línea a 1 metro entre sí. Conduce el balón entre ellos en slalom ida y vuelta. 10 veces.",
+      consejo: "Primero lento y preciso. Cuando salga limpio, añade velocidad. Nunca sacrifiques control por velocidad.",
+      video: null
+    },
+    {
+      nombre: "Malabares", categoria: "Técnica · Balón", color: "#FF1744",
+      series: "Máximo toques × 3", tiempo: "",
+      desc: "Haz malabares intentando superar tu récord de toques. 3 intentos. Anota tu mejor marca. Usa todo: empeine, muslo, hombro, cabeza.",
+      consejo: "El secreto de los malabares es golpear el balón siempre en el centro. Si sale hacia un lado, ajusta la postura.",
+      video: null
+    }
+  ],
+
+  // MOVILIDAD
+  movilidad: [
+    {
+      nombre: "Movilidad de cadera", categoria: "Movilidad", color: "#26C6DA",
+      series: "2×10 cada lado", tiempo: "",
+      desc: "De pie, apoya una mano en la pared. Haz círculos amplios con la cadera. Primero hacia adelante, luego hacia atrás. Los futbolistas tienen la cadera muy rígida — esto es fundamental.",
+      consejo: "Cuanto más grande el círculo, mejor. Notarás puntos donde 'engancha' — ahí es donde más necesitas trabajar.",
+      video: null
+    },
+    {
+      nombre: "Estiramiento isquiotibiales", categoria: "Movilidad", color: "#26C6DA",
+      series: "3×30 seg cada pierna", tiempo: "",
+      desc: "Tumbado boca arriba. Sujeta una pierna extendida y tírala hacia ti. Sin doblar la rodilla. Notarás tensión en la parte trasera del muslo. Mantén 30 segundos.",
+      consejo: "No rebotes. El estiramiento es estático. Respira lento y nota cómo cede poco a poco.",
+      video: null
+    },
+    {
+      nombre: "Movilidad de tobillo", categoria: "Movilidad", color: "#26C6DA",
+      series: "2×10 cada tobillo", tiempo: "",
+      desc: "De pie, apoya el pie en el suelo y dibuja círculos con el tobillo. Rodillas ligeramente flexionadas. Un tobillo rígido es causa frecuente de lesiones.",
+      consejo: "Hazlo descalzo si puedes. Notarás diferencia entre un tobillo y el otro — normal si has tenido algún esguince.",
+      video: null
+    },
+    {
+      nombre: "Estiramiento de cuádriceps", categoria: "Movilidad", color: "#26C6DA",
+      series: "3×30 seg cada pierna", tiempo: "",
+      desc: "De pie, dobla una rodilla y sujeta el pie con la mano. Rodillas juntas. Nota el estiramiento en la parte delantera del muslo. Si pierdes el equilibrio, apóyate en la pared.",
+      consejo: "Mantén el cuerpo completamente recto. Si te inclinas hacia adelante, el estiramiento no es correcto.",
+      video: null
+    }
+  ]
+};
+
+// RUTINA PRE-PROGRAMA: Estiramiento de psoas para hiperlordosis
+const EJERCICIOS_PSOAS = [
+  {
+    nombre: "Estiramiento de psoas en rodilla", categoria: "Psoas · Hiperlordosis", color: "#E040FB",
+    series: "3×30 seg cada lado", tiempo: "",
+    desc: "Rodilla derecha en el suelo, pie izquierdo adelantado con la rodilla a 90°. Empuja la cadera suavemente hacia adelante sin arquear la espalda. Notarás la tensión en la parte delantera de la cadera de la pierna de atrás. Ese es el psoas.",
+    consejo: "Aprieta el glúteo del lado que estiras — eso aumenta el estiramiento del psoas. La espalda debe quedarse recta, no la arquees.",
+    video: "https://www.youtube.com/embed/2kfJTHITa4w"
+  },
+  {
+    nombre: "Puente de glúteo", categoria: "Psoas · Activación glúteo", color: "#E040FB",
+    series: "3×12 rep", tiempo: "",
+    desc: "Tumbado boca arriba, rodillas flexionadas, pies apoyados. Sube la cadera apretando los glúteos. Mantén 2 segundos arriba. El glúteo es el antagonista del psoas — si lo activas, el psoas se relaja.",
+    consejo: "No subas demasiado — solo hasta que el cuerpo forme una línea recta. Si notas la espalda baja, estás compensando.",
+    video: null
+  },
+  {
+    nombre: "Dead bug", categoria: "Psoas · Core estabilización", color: "#E040FB",
+    series: "3×8 rep cada lado", tiempo: "",
+    desc: "Tumbado boca arriba, brazos hacia el techo, rodillas a 90°. Extiende un brazo hacia atrás y la pierna contraria hacia adelante al mismo tiempo. La espalda baja NUNCA se despega del suelo. Ese es el objetivo del ejercicio.",
+    consejo: "Si la espalda se despega del suelo, no estás controlando el core. Reduce el rango hasta que puedas mantener la espalda pegada.",
+    video: "https://www.youtube.com/embed/OUVY99ez0k0"
+  },
+  {
+    nombre: "Estiramiento de psoas en sofá", categoria: "Psoas · Hiperlordosis", color: "#E040FB",
+    series: "2×45 seg cada lado", tiempo: "",
+    desc: "Pon una rodilla en el suelo justo delante del sofá. Apoya el empeine de ese pie en el asiento del sofá (detrás de ti). El otro pie está adelantado. Mantén el torso recto. Es el estiramiento de psoas más intenso — no fuerces.",
+    consejo: "Si es demasiado intenso, aléjate un poco del sofá. Cuando puedas aguantar 45 segundos cómodamente, acércate más.",
+    video: "https://www.youtube.com/embed/J6-A3SRNpjw"
+  },
+  {
+    nombre: "Estiramiento de cuádriceps lateral", categoria: "Psoas · Complementario", color: "#E040FB",
+    series: "3×30 seg cada lado", tiempo: "",
+    desc: "Tumbado de lado. Coge el pie de arriba con la mano y tira hacia el glúteo. Mantén las rodillas juntas. El cuádriceps y el psoas comparten inserción — estirar uno ayuda al otro.",
+    consejo: "No arquees la espalda. Si lo haces, el estiramiento pierde efecto sobre el psoas.",
+    video: null
+  }
+];
+
+// ============================================================
+// PLAN DE 10 SEMANAS
+// ============================================================
+// Día de semana: 0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sáb
+// Tipo de sesión por día de semana
+function getTipoSesion(diaSemana, semana) {
+  // Calendario: 4 días de calidad + 3 de descanso/opcional
+  // Lun: Fuerza+Técnica | Mié: Pliometría+Velocidad+Cardio corto | Vie: Fuerza+Técnica | Sáb: Cardio suave+Balón
+  // Mar, Jue, Dom: descanso (movilidad opcional)
+  // Fuerza 2x/sem (objetivo: ganar) · Pliometría 1x · Cardio 2x (1 intervalos + 1 suave)
+  // Semanas 5 y 10: descarga
+
+  const esDescarga = semana === 5 || semana === 10;
+
+  const plan = {
+    1: { tipo: 'fuerza_tecnica', nombre: 'Fuerza + Técnica', icono: '💪' },
+    2: { tipo: 'descanso_opcional', nombre: 'Descanso (movilidad opcional)', icono: '😌' },
+    3: { tipo: 'pliometria', nombre: 'Pliometría + Velocidad', icono: '⚡' },
+    4: { tipo: 'descanso', nombre: 'Descanso', icono: '😴' },
+    5: { tipo: 'fuerza_tecnica', nombre: 'Fuerza + Técnica', icono: '💪' },
+    6: { tipo: 'cardio_balon', nombre: 'Cardio suave + Balón', icono: '⚽' },
+    0: { tipo: 'descanso', nombre: 'Descanso', icono: '😴' }
+  };
+
+  if (esDescarga) {
+    const planDesc = { ...plan };
+    // En descarga: una sesión de fuerza menos, pliometría suave
+    planDesc[5] = { tipo: 'descanso_opcional', nombre: 'Descanso (movilidad opcional)', icono: '😌' };
+    planDesc[3] = { tipo: 'pliometria', nombre: 'Pliometría suave', icono: '⚡' };
+    return planDesc[diaSemana];
+  }
+
+  return plan[diaSemana];
+}
+
+// Progresión de fuerza: las reps suben por bloques (ganancia neural pre-PHV)
+function fuerzaProgresada(semana) {
+  const esDescarga = semana === 5 || semana === 10;
+
+  // Reps de sentadilla/zancada/hip thrust y segundos de plancha según fase
+  let repSentadilla, repZancada, repHip, segPlancha, segPlanchaLat;
+  // Rampa del curl nórdico (ejercicio muy exigente — empezar suave)
+  let nordico;
+
+  if (esDescarga) {
+    repSentadilla = '2×10 rep'; repZancada = '2×8 rep cada pierna'; repHip = '2×12 rep';
+    segPlancha = '2×30 seg'; segPlanchaLat = '2×20 seg cada lado';
+    nordico = '2×3 rep';
+  } else if (semana <= 3) {
+    // Bloque inicial
+    repSentadilla = '3×10 rep'; repZancada = '3×8 rep cada pierna'; repHip = '3×12 rep';
+    segPlancha = '3×30 seg'; segPlanchaLat = '3×20 seg cada lado';
+    nordico = (semana <= 2) ? '2×3 rep' : '2×4 rep'; // semanas 1-2 muy suave
+  } else if (semana <= 7) {
+    // Bloque medio (más reps = más estímulo)
+    repSentadilla = '3×12 rep'; repZancada = '3×10 rep cada pierna'; repHip = '3×15 rep';
+    segPlancha = '3×40 seg'; segPlanchaLat = '3×25 seg cada lado';
+    nordico = '3×4 rep';
+  } else {
+    // Bloque final (máximo del verano)
+    repSentadilla = '3×15 rep'; repZancada = '3×12 rep cada pierna'; repHip = '3×18 rep';
+    segPlancha = '3×45 seg'; segPlanchaLat = '3×30 seg cada lado';
+    nordico = '3×5 rep';
+  }
+
+  return {
+    sentadilla: { ...EJERCICIOS.fuerza[0], series: repSentadilla },
+    zancada: { ...EJERCICIOS.fuerza[1], series: repZancada },
+    hip: { ...EJERCICIOS.fuerza[2], series: repHip },
+    nordico: { ...EJERCICIOS.fuerza[3], series: nordico },
+    plancha: { ...EJERCICIOS.fuerza[4], series: segPlancha },
+    planchaLat: { ...EJERCICIOS.fuerza[5], series: segPlanchaLat }
+  };
+}
+
+function getSesionEjercicios(tipo, semana) {
+  const esDescarga = semana === 5 || semana === 10;
+  const F = fuerzaProgresada(semana);
+
+  switch(tipo) {
+    case 'pliometria':
+      return [
+        ...EJERCICIOS.calentamiento,
+        EJERCICIOS.pliometria[0], // saltos 2 pies
+        EJERCICIOS.pliometria[1], // saltos 1 pie
+        EJERCICIOS.pliometria[2], // horizontales
+        EJERCICIOS.pliometria[3], // sprint 10m
+        ...(esDescarga ? [] : [EJERCICIOS.pliometria[4], EJERCICIOS.pliometria[5]]), // sprint 20m + cambios dir
+        EJERCICIOS.aerobico[1], // cardio corto: intervalos
+        EJERCICIOS.movilidad[0], // movilidad cadera al final
+      ];
+    case 'fuerza_tecnica':
+      return [
+        ...EJERCICIOS.calentamiento.slice(0,2),
+        F.sentadilla,
+        F.zancada,
+        F.hip,
+        F.nordico,
+        F.plancha,
+        ...(esDescarga ? [] : [F.planchaLat]),
+        EJERCICIOS.tecnica[1], // conducción
+        EJERCICIOS.movilidad[1], // estiramiento isquio (vuelta a la calma)
+      ];
+    case 'cardio_balon':
+      return [
+        ...EJERCICIOS.calentamiento.slice(0,2),
+        EJERCICIOS.aerobico[0], // carrera continua suave
+        EJERCICIOS.tecnica[0], // toque pared
+        EJERCICIOS.tecnica[2], // malabares (lúdico)
+        EJERCICIOS.movilidad[3], // estiramiento cuádriceps
+      ];
+    case 'descanso_opcional':
+    case 'movilidad':
+      return [...EJERCICIOS.movilidad];
+    default:
+      return [...EJERCICIOS.movilidad];
+  }
+}
+
+// ============================================================
+// ESTADO Y LÓGICA
+// ============================================================
+const INICIO = new Date('2026-06-15');
+const FIN = new Date('2026-08-24');
+const NUM_SEMANAS = 10;
+
+let estadoActual = {
+  sesionesCompletadas: [],
+  ejercicioActual: 0,
+  sesionActualTipo: null,
+  sesionActualNombre: null,
+  rpeSeleccionado: null,
+  molestias: []
+};
+
+function cargarEstado() {
+  const guardado = localStorage.getItem('nico_verano_2026');
+  if (guardado) {
+    try {
+      estadoActual = { ...estadoActual, ...JSON.parse(guardado) };
+    } catch(e) {}
+  }
+}
+
+function guardarEstado() {
+  localStorage.setItem('nico_verano_2026', JSON.stringify({
+    sesionesCompletadas: estadoActual.sesionesCompletadas
+  }));
+}
+
+function getHoy() {
+  return new Date();
+}
+
+function yaEmpezo() {
+  const hoy = getHoy();
+  const h = new Date(hoy); h.setHours(0,0,0,0);
+  const ini = new Date(INICIO); ini.setHours(0,0,0,0);
+  return h >= ini;
+}
+
+function diasParaEmpezar() {
+  const hoy = getHoy();
+  const h = new Date(hoy); h.setHours(0,0,0,0);
+  const ini = new Date(INICIO); ini.setHours(0,0,0,0);
+  return Math.ceil((ini - h) / (1000 * 60 * 60 * 24));
+}
+
+function getSemanaActual() {
+  if (!yaEmpezo()) return 0; // aún no ha empezado
+  const hoy = getHoy();
+  const diff = Math.floor((hoy - INICIO) / (1000 * 60 * 60 * 24 * 7));
+  return Math.max(1, Math.min(NUM_SEMANAS, diff + 1));
+}
+
+function getDiasRestantes() {
+  const hoy = getHoy();
+  const diff = Math.ceil((FIN - hoy) / (1000 * 60 * 60 * 24));
+  return Math.max(0, diff);
+}
+
+function formatFecha(fecha) {
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${dias[fecha.getDay()]}, ${fecha.getDate()} de ${meses[fecha.getMonth()]}`;
+}
+
+function getSaludo() {
+  const h = new Date().getHours();
+  if (h < 13) return 'Buenos días';
+  if (h < 20) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+function getNumRacha() {
+  if (estadoActual.sesionesCompletadas.length === 0) return 0;
+  const ordenadas = [...estadoActual.sesionesCompletadas].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+  let racha = 0;
+  let fechaComp = new Date(ordenadas[0].fecha);
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  fechaComp.setHours(0,0,0,0);
+  const diffDias = Math.floor((hoy - fechaComp) / (1000*60*60*24));
+  if (diffDias > 1) return 0;
+  racha = 1;
+  for (let i = 1; i < ordenadas.length; i++) {
+    const prev = new Date(ordenadas[i-1].fecha);
+    const curr = new Date(ordenadas[i].fecha);
+    prev.setHours(0,0,0,0); curr.setHours(0,0,0,0);
+    if (Math.floor((prev - curr) / (1000*60*60*24)) === 1) {
+      racha++;
+    } else break;
+  }
+  return racha;
+}
+
+function hayCompletadoHoy() {
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  return estadoActual.sesionesCompletadas.some(s => {
+    const f = new Date(s.fecha);
+    f.setHours(0,0,0,0);
+    return f.getTime() === hoy.getTime();
+  });
+}
+
+const MENSAJES_ANIMO = [
+  "🔥 Cada sesión ahora vale el doble. Cuando empiece la pretemporada, lo notarás.",
+  "💪 Los que no paran en verano son los que mandan en septiembre.",
+  "⚡ No entrenas para este verano. Entrenas para ser el Nico del próximo año.",
+  "🎯 Consistencia > intensidad. Una sesión cada día te lleva más lejos que una épica a la semana.",
+  "🌟 Los mejores jugadores no descansan el verano. Lo usan para distanciarse.",
+  "🚀 Un poco cada día. En 10 semanas, el cambio es brutal.",
+  "⚽ El campo no te olvida si tú no lo olvidas a él.",
+  "💥 Hoy entrenas tú cuando otros están en el sofá. Esa es la diferencia."
+];
+
+function getMensajeAnimo() {
+  const idx = Math.floor(Math.random() * MENSAJES_ANIMO.length);
+  return MENSAJES_ANIMO[idx];
+}
+
+// ============================================================
+// RENDER HOME
+// ============================================================
+function renderHome() {
+  const hoy = getHoy();
+  document.getElementById('saludo-texto').textContent = getSaludo();
+  document.getElementById('fecha-hoy').textContent = formatFecha(hoy);
+
+  const semana = getSemanaActual();
+
+  // Si aún no ha empezado el programa (antes del 15 junio): rutina de psoas
+  if (!yaEmpezo()) {
+    const dias = diasParaEmpezar();
+    document.getElementById('semana-badge-texto').textContent = 'Pre-programa';
+    document.getElementById('stat-completadas').textContent = estadoActual.sesionesCompletadas.length;
+    document.getElementById('stat-racha').textContent = getNumRacha();
+    document.getElementById('stat-dias').textContent = dias;
+    document.getElementById('stat-dias-label').textContent = 'Para empezar';
+
+    const yaHechoPsoas = hayCompletadoHoy();
+
+    document.getElementById('home-sesion-area').innerHTML = yaHechoPsoas
+      ? `<div class="descanso-card" style="border-color: rgba(224,64,251,0.3);">
+           <div class="descanso-emoji">✅</div>
+           <div class="descanso-titulo" style="color:#E040FB">¡Psoas estirado hoy!</div>
+           <div class="descanso-texto">Ya has hecho tu rutina de hoy. Nos vemos mañana.</div>
+         </div>`
+      : `<div class="sesion-hoy">
+          <div class="sesion-hoy-header" style="background:linear-gradient(135deg,#E040FB,#AA00FF);">
+            <div class="sesion-hoy-titulo">🧘 Rutina de Psoas</div>
+            <div class="sesion-hoy-tipo">${EJERCICIOS_PSOAS.length} ejercicios</div>
+          </div>
+          <div class="sesion-hoy-body">
+            <div style="font-size:13px; color:var(--texto2); margin-bottom:14px; line-height:1.5;">
+              Hasta que empiece el plan del verano, trabaja cada día el <strong style="color:var(--texto);">estiramiento de psoas</strong> para mejorar la hiperlordosis. Son 10 minutos.
+            </div>
+            <div class="sesion-preview">
+              ${EJERCICIOS_PSOAS.map(e => `<div class="sesion-preview-item"><span>🧘</span><span>${e.nombre}</span></div>`).join('')}
+            </div>
+            <button class="btn-iniciar" style="background:#E040FB;" onclick="iniciarSesionPsoas()">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              ¡Empezar rutina!
+            </button>
+          </div>
+        </div>`;
+
+    document.getElementById('animo-card').innerHTML = `📅 <strong>El plan de verano empieza el 15 de junio</strong> — ${dias === 1 ? 'falta 1 día' : `faltan ${dias} días`}. Mientras tanto, estos estiramientos de psoas preparan tu cadera para el verano.`;
+    renderStreakSemana();
+    return;
+  }
+
+  document.getElementById('semana-badge-texto').textContent = `Semana ${semana} de ${NUM_SEMANAS}`;
+  document.getElementById('stat-completadas').textContent = estadoActual.sesionesCompletadas.length;
+  document.getElementById('stat-racha').textContent = getNumRacha();
+  document.getElementById('stat-dias').textContent = getDiasRestantes();
+  document.getElementById('stat-dias-label').textContent = 'Días restantes';
+
+  const tipoHoy = getTipoSesion(hoy.getDay(), semana);
+  const areaHoy = document.getElementById('home-sesion-area');
+
+  if (tipoHoy.tipo === 'descanso') {
+    areaHoy.innerHTML = `
+      <div class="descanso-card">
+        <div class="descanso-emoji">😴</div>
+        <div class="descanso-titulo">Día de descanso</div>
+        <div class="descanso-texto">Hoy toca recuperar. El descanso es parte del entrenamiento.<br>Puedes hacer 10 minutos de movilidad si te apetece.</div>
+      </div>`;
+  } else if (tipoHoy.tipo === 'descanso_opcional' && !hayCompletadoHoy()) {
+    areaHoy.innerHTML = `
+      <div class="descanso-card">
+        <div class="descanso-emoji">😌</div>
+        <div class="descanso-titulo" style="color:var(--azul)">Día de descanso</div>
+        <div class="descanso-texto">Hoy no hay sesión obligatoria. Descansa.<br>Si te apetece moverte, puedes hacer la rutina de movilidad — pero es opcional.</div>
+        <button class="btn-iniciar" style="margin-top:16px; background:var(--fondo3); color:var(--azul);" onclick="iniciarSesion()">
+          🧘 Hacer movilidad (opcional)
+        </button>
+      </div>`;
+  } else if (hayCompletadoHoy()) {
+    areaHoy.innerHTML = `
+      <div class="descanso-card" style="border-color: rgba(0,230,118,0.3);">
+        <div class="descanso-emoji">✅</div>
+        <div class="descanso-titulo" style="color:var(--verde)">¡Ya entrenaste hoy!</div>
+        <div class="descanso-texto">Sesión del día completada. Descansa bien esta noche.</div>
+      </div>`;
+  } else {
+    const ejercsHoy = getSesionEjercicios(tipoHoy.tipo, semana);
+    const preview = ejercsHoy.slice(0, 4).map(e =>
+      `<div class="sesion-preview-item"><span>${e.categoria.includes('Plio') ? '⚡' : e.categoria.includes('Vel') ? '💨' : e.categoria.includes('Fuerza') ? '💪' : e.categoria.includes('Aeró') ? '🏃' : e.categoria.includes('Técnica') ? '⚽' : e.categoria.includes('Movilidad') ? '🧘' : e.categoria.includes('Calent') ? '🔥' : '▶️'}</span><span>${e.nombre}</span></div>`
+    ).join('');
+
+    // Aviso de calor: sesiones con esfuerzo (no movilidad) y meses calurosos
+    const mes = hoy.getMonth(); // 5=jun, 6=jul, 7=ago
+    const esIntensa = ['fuerza_tecnica','pliometria','cardio_balon'].includes(tipoHoy.tipo);
+    const avisoCalor = (esIntensa && (mes === 6 || mes === 7 || (mes === 5 && hoy.getDate() >= 20)))
+      ? `<div class="animo-card" style="background:linear-gradient(135deg,rgba(255,109,0,0.12),rgba(255,23,68,0.08)); border-color:rgba(255,109,0,0.4); margin:0 0 14px;">
+           ☀️ <strong>Calor</strong> — Entrena a primera hora de la mañana o al atardecer, nunca al mediodía. Lleva agua y bebe antes, durante y después. Si te mareas, para.
+         </div>`
+      : '';
+
+    areaHoy.innerHTML = `
+      <div class="sesion-hoy">
+        <div class="sesion-hoy-header">
+          <div class="sesion-hoy-titulo">${tipoHoy.icono} ${tipoHoy.nombre}</div>
+          <div class="sesion-hoy-tipo">${ejercsHoy.length} ejercicios</div>
+        </div>
+        <div class="sesion-hoy-body">
+          ${avisoCalor}
+          <div class="sesion-preview">${preview}${ejercsHoy.length > 4 ? `<div class="sesion-preview-item"><span>+</span><span style="color:var(--texto2)">${ejercsHoy.length - 4} ejercicios más...</span></div>` : ''}</div>
+          <button class="btn-iniciar" onclick="iniciarSesion()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            ¡Empezar sesión!
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // Mensaje ánimo
+  document.getElementById('animo-card').innerHTML = getMensajeAnimo();
+
+  // Streak días esta semana
+  renderStreakSemana();
+}
+
+function renderStreakSemana() {
+  const hoy = getHoy();
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+  const diasSemana = ['L','M','X','J','V','S','D'];
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const dia = new Date(lunes);
+    dia.setDate(lunes.getDate() + i);
+    dia.setHours(0,0,0,0);
+    const hoyD = new Date(hoy); hoyD.setHours(0,0,0,0);
+    const tipoD = getTipoSesion(dia.getDay(), getSemanaActual());
+    const completado = estadoActual.sesionesCompletadas.some(s => {
+      const f = new Date(s.fecha); f.setHours(0,0,0,0);
+      return f.getTime() === dia.getTime();
+    });
+    const esHoy = dia.getTime() === hoyD.getTime();
+
+    let clase = 'pendiente';
+    let texto = diasSemana[i];
+    if (completado) clase = 'completado';
+    else if (tipoD.tipo === 'descanso') { clase = 'descanso'; texto = '—'; }
+    else if (esHoy) clase = 'hoy';
+
+    html += `<div class="dia-chip ${clase}">${texto}</div>`;
+  }
+  document.getElementById('streak-row').innerHTML = html;
+}
+
+// ============================================================
+// SESIÓN
+// ============================================================
+let sesionEjercicios = [];
+
+function iniciarSesionPsoas() {
+  sesionEjercicios = [...EJERCICIOS_PSOAS];
+  estadoActual.ejercicioActual = 0;
+  estadoActual.sesionActualTipo = 'psoas';
+  estadoActual.sesionActualNombre = 'Rutina de Psoas';
+
+  document.getElementById('sesion-nombre-top').textContent = 'Rutina de Psoas';
+  document.getElementById('sesion-meta-top').textContent = `${sesionEjercicios.length} ejercicios · Pre-programa`;
+
+  renderEjercicio();
+  showScreen('sesion');
+}
+
+function iniciarSesion() {
+  const hoy = getHoy();
+  const semana = getSemanaActual();
+  const tipoHoy = getTipoSesion(hoy.getDay(), semana);
+  sesionEjercicios = getSesionEjercicios(tipoHoy.tipo, semana);
+  estadoActual.ejercicioActual = 0;
+  estadoActual.sesionActualTipo = tipoHoy.tipo;
+  estadoActual.sesionActualNombre = tipoHoy.nombre;
+
+  document.getElementById('sesion-nombre-top').textContent = tipoHoy.nombre;
+  document.getElementById('sesion-meta-top').textContent = `${sesionEjercicios.length} ejercicios · Semana ${semana}`;
+
+  renderEjercicio();
+  showScreen('sesion');
+}
+
+function renderEjercicio() {
+  const idx = estadoActual.ejercicioActual;
+  const ej = sesionEjercicios[idx];
+  const total = sesionEjercicios.length;
+  const pct = ((idx + 1) / total) * 100;
+
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-actual').textContent = `Ejercicio ${idx + 1}`;
+  document.getElementById('progress-total').textContent = `de ${total}`;
+
+  const esSeries = ej.series && ej.series !== '';
+  const esTiempo = ej.tiempo && ej.tiempo !== '';
+
+  const badgesHTML = [
+    esSeries ? `<div class="carga-badge">🔁 ${ej.series}</div>` : '',
+    esTiempo ? `<div class="carga-badge">⏱️ ${ej.tiempo}</div>` : ''
+  ].join('');
+
+  document.getElementById('ejercicio-container').innerHTML = `
+    <div class="ejercicio-card">
+      <div class="ejercicio-header">
+        <div class="ejercicio-categoria" style="color:${ej.color}">${ej.categoria}</div>
+        <div class="ejercicio-nombre">${ej.nombre}</div>
+        <div class="ejercicio-carga">${badgesHTML}</div>
+      </div>
+      <div class="ejercicio-desc">${ej.desc}</div>
+      <div class="ejercicio-consejo">
+        <strong>💡 Clave</strong>
+        ${ej.consejo}
+      </div>
+      ${ej.video ? (() => {
+        const videoId = ej.video.split('/embed/')[1];
+        return `
+      <a class="video-toggle" href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener">
+        <div class="video-thumb-wrap">
+          <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="Ver vídeo">
+          <div class="video-play-icon">
+            <svg fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="video-toggle-label">
+          <svg fill="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg>
+          Ver cómo se hace en YouTube
+        </div>
+      </a>`;
+      })() : ''}
+    </div>`;
+
+  const esUltimo = idx === total - 1;
+  const navHTML = idx > 0
+    ? `<button class="btn-nav btn-anterior" onclick="anteriorEjercicio()">← Anterior</button>
+       <button class="btn-nav btn-siguiente ${esUltimo ? 'ultimo' : ''}" onclick="${esUltimo ? 'finalizarSesion()' : 'siguienteEjercicio()'}">
+         ${esUltimo ? '¡Finalizar! 🎉' : 'Siguiente →'}
+       </button>`
+    : `<button class="btn-nav btn-siguiente ${esUltimo ? 'ultimo' : ''}" onclick="${esUltimo ? 'finalizarSesion()' : 'siguienteEjercicio()'}" style="grid-column:1/-1">
+         ${esUltimo ? '¡Finalizar! 🎉' : 'Siguiente →'}
+       </button>`;
+
+  document.getElementById('ejercicio-nav').innerHTML = navHTML;
+}
+
+function siguienteEjercicio() {
+  estadoActual.ejercicioActual++;
+  renderEjercicio();
+  window.scrollTo(0, 0);
+}
+
+function anteriorEjercicio() {
+  if (estadoActual.ejercicioActual > 0) {
+    estadoActual.ejercicioActual--;
+    renderEjercicio();
+    window.scrollTo(0, 0);
+  }
+}
+
+function finalizarSesion() {
+  showScreen('completar');
+  renderCompletarScreen();
+}
+
+function volverHome() {
+  showScreen('home');
+}
+
+// ============================================================
+// COMPLETAR
+// ============================================================
+const RPE_TEXTOS = {
+  1: "Muy fácil — casi no noté esfuerzo",
+  2: "Fácil — cómodo durante todo el rato",
+  3: "Moderado — noté que trabajé",
+  4: "Duro — costó bastante",
+  5: "Muy duro — al límite",
+  6: "Máximo — casi no puedo más",
+  7: "Brutal 🔥",
+  8: "Muy brutal 🔥🔥",
+  9: "Épico 🔥🔥🔥",
+  10: "Modo bestia 🔥🔥🔥🔥"
+};
+
+function renderCompletarScreen() {
+  estadoActual.rpeSeleccionado = null;
+  estadoActual.molestias = [];
+
+  document.getElementById('completar-nombre-sesion').textContent = estadoActual.sesionActualNombre || '';
+
+  // RPE grid
+  let rpeHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    rpeHTML += `<button class="rpe-btn" onclick="seleccionarRPE(${i})" id="rpe-${i}">${i}</button>`;
+  }
+  document.getElementById('rpe-grid').innerHTML = rpeHTML;
+  document.getElementById('rpe-desc').textContent = '';
+
+  // Molestias
+  const molestias = ['Rodilla','Tobillo','Muslo','Cadera','Espalda','Ninguna'];
+  let molHTML = molestias.map(m =>
+    `<button class="molestia-btn ${m==='Ninguna'?'ninguna':''}" onclick="toggleMolestia('${m}', this)">${m}</button>`
+  ).join('');
+  document.getElementById('molestias-grid').innerHTML = molHTML;
+
+  document.getElementById('nota-input').value = '';
+}
+
+function seleccionarRPE(n) {
+  estadoActual.rpeSeleccionado = n;
+  for (let i = 1; i <= 10; i++) {
+    document.getElementById('rpe-' + i).classList.toggle('selected', i === n);
+  }
+  document.getElementById('rpe-desc').textContent = RPE_TEXTOS[n] || '';
+}
+
+function toggleMolestia(m, btn) {
+  if (m === 'Ninguna') {
+    estadoActual.molestias = ['Ninguna'];
+    document.querySelectorAll('.molestia-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    return;
+  }
+  const idx = estadoActual.molestias.indexOf(m);
+  const ningunaIdx = estadoActual.molestias.indexOf('Ninguna');
+  if (ningunaIdx > -1) {
+    estadoActual.molestias.splice(ningunaIdx, 1);
+    document.querySelector('.molestia-btn.ninguna').classList.remove('selected');
+  }
+  if (idx > -1) {
+    estadoActual.molestias.splice(idx, 1);
+    btn.classList.remove('selected');
+  } else {
+    estadoActual.molestias.push(m);
+    btn.classList.add('selected');
+  }
+}
+
+function enviarWhatsApp() {
+  // Guardar sesión
+  const sesion = {
+    fecha: new Date().toISOString(),
+    nombre: estadoActual.sesionActualNombre,
+    ejercicios: sesionEjercicios.length,
+    rpe: estadoActual.rpeSeleccionado,
+    molestias: estadoActual.molestias,
+    nota: document.getElementById('nota-input').value,
+    semana: getSemanaActual()
+  };
+  estadoActual.sesionesCompletadas.push(sesion);
+  guardarEstado();
+
+  // Construir mensaje
+  const fecha = formatFecha(new Date());
+  const rpeTexto = sesion.rpe ? `${sesion.rpe}/10 — ${RPE_TEXTOS[sesion.rpe]}` : 'No indicado';
+  const molTexto = sesion.molestias.length > 0 ? sesion.molestias.join(', ') : 'Ninguna';
+  const racha = getNumRacha();
+
+  let msg = `⚽ *NICO — ENTRENAMIENTO COMPLETADO*\n`;
+  msg += `📅 ${fecha}\n`;
+  msg += `💪 *Sesión:* ${sesion.nombre}\n`;
+  msg += `📋 *Semana:* ${sesion.semana} de ${NUM_SEMANAS}\n`;
+  msg += `🔢 *Ejercicios:* ${sesion.ejercicios}\n`;
+  msg += `😮‍💨 *Esfuerzo (RPE):* ${rpeTexto}\n`;
+  msg += `🦵 *Molestias:* ${molTexto}\n`;
+  msg += `🔥 *Racha:* ${racha} día${racha !== 1 ? 's' : ''} seguido${racha !== 1 ? 's' : ''}\n`;
+  msg += `📊 *Total sesiones:* ${estadoActual.sesionesCompletadas.length}\n`;
+  if (sesion.nota) msg += `📝 *Nota:* ${sesion.nota}\n`;
+
+  const tel = '34649052317'; // Número de Bernat
+  const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function irHome() {
+  renderHome();
+  showScreen('home');
+}
+
+// ============================================================
+// HISTORIAL
+// ============================================================
+function renderHistorial() {
+  const container = document.getElementById('historial-container');
+  const completadas = estadoActual.sesionesCompletadas;
+
+  if (completadas.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:40px 20px; color:var(--texto2);">
+        <div style="font-size:48px; margin-bottom:12px;">📭</div>
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; text-transform:uppercase; color:var(--texto);">Sin sesiones aún</div>
+        <div style="font-size:14px; margin-top:6px;">¡Completa tu primera sesión hoy!</div>
+      </div>`;
+    return;
+  }
+
+  const ordenadas = [...completadas].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+  let html = '';
+  ordenadas.forEach(s => {
+    const f = new Date(s.fecha);
+    const rpeColor = !s.rpe ? 'var(--texto2)' : s.rpe <= 4 ? 'var(--verde)' : s.rpe <= 7 ? 'var(--amarillo)' : 'var(--rojo)';
+    const molTexto = s.molestias && s.molestias.length > 0 && !s.molestias.includes('Ninguna')
+      ? `⚠️ ${s.molestias.join(', ')}`
+      : '';
+    html += `
+      <div class="historial-item">
+        <div>
+          <div class="historial-item-fecha">${formatFecha(f)} · Semana ${s.semana || '?'}</div>
+          <div class="historial-item-nombre">${s.nombre}</div>
+          ${molTexto ? `<div style="font-size:12px; color:var(--rojo); margin-top:3px;">${molTexto}</div>` : ''}
+        </div>
+        <div style="text-align:right;">
+          <div class="historial-item-rpe" style="color:${rpeColor}">${s.rpe || '—'}</div>
+          <div style="font-size:10px; color:var(--texto2); text-transform:uppercase; letter-spacing:0.5px;">RPE</div>
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ============================================================
+// PLAN
+// ============================================================
+function renderPlan() {
+  const container = document.getElementById('plan-container');
+  const bloques = [
+    { nombre: 'Semanas 1–3', semRef: 1, color: '#40C4FF', descripcion: 'Arranque. Fuerza con reps moderadas. El curl nórdico empieza muy suave.' },
+    { nombre: 'Semana 5 · Descarga', semRef: 5, color: '#FFD740', descripcion: 'Semana suave a mitad de verano. Menos carga para recuperar.' },
+    { nombre: 'Semanas 6–9', semRef: 8, color: '#FF6D00', descripcion: 'Fase de más estímulo. Las reps de fuerza suben (ganancia neural).' },
+    { nombre: 'Semana 10 · Descarga', semRef: 10, color: '#FFD740', descripcion: 'Descarga final. Llegar fresco a la pretemporada.' }
+  ];
+
+  const diasNombres = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const diasOrden = [1,2,3,4,5,6,0]; // Lunes primero
+
+  let html = '';
+  bloques.forEach((bloque, bi) => {
+    const semNum = bloque.semRef;
+    let diasHTML = '';
+    diasOrden.forEach(d => {
+      const tipo = getTipoSesion(d, semNum);
+      let ejercsDetalle = '';
+      if (tipo.tipo !== 'descanso') {
+        const ejercs = getSesionEjercicios(tipo.tipo, semNum);
+        ejercsDetalle = ejercs.map(e => {
+          const carga = [e.series, e.tiempo].filter(Boolean).join(' · ');
+          return `<div style="display:flex;gap:8px;align-items:baseline;padding:2px 0;">
+            <span style="color:${e.color};font-size:11px;">●</span>
+            <span style="font-size:12px;color:var(--texto);">${e.nombre}</span>
+            ${carga ? `<span style="font-size:11px;color:var(--texto2);margin-left:auto;white-space:nowrap;">${carga}</span>` : ''}
+          </div>`;
+        }).join('');
+      }
+      diasHTML += `
+        <div class="bloque-dia">
+          <div class="bloque-dia-num">${diasNombres[diasOrden.indexOf(d)]}</div>
+          <div class="bloque-dia-info">
+            <div class="bloque-dia-tipo">${tipo.icono} ${tipo.nombre}</div>
+            ${ejercsDetalle ? `<div style="margin-top:6px;padding-left:2px;">${ejercsDetalle}</div>` : ''}
+          </div>
+        </div>`;
+    });
+
+    html += `
+      <div class="bloque-card">
+        <div class="bloque-header" onclick="toggleBloque(${bi})">
+          <div>
+            <div class="bloque-nombre" style="color:${bloque.color}">${bloque.nombre}</div>
+            <div class="bloque-semanas">${bloque.descripcion}</div>
+          </div>
+          <span id="arrow-${bi}" style="color:var(--texto2); font-size:20px;">▸</span>
+        </div>
+        <div class="bloque-body" id="bloque-body-${bi}">
+          ${diasHTML}
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleBloque(idx) {
+  const body = document.getElementById('bloque-body-' + idx);
+  const arrow = document.getElementById('arrow-' + idx);
+  const abierto = body.classList.toggle('open');
+  arrow.textContent = abierto ? '▾' : '▸';
+}
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function showScreen(nombre) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('screen-' + nombre).classList.add('active');
+  const navBtn = document.getElementById('nav-' + nombre);
+  if (navBtn) navBtn.classList.add('active');
+
+  if (nombre === 'home') renderHome();
+  if (nombre === 'historial') renderHistorial();
+  if (nombre === 'plan') renderPlan();
+
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+cargarEstado();
+renderHome();
+</script>
+</body>
+</html>
