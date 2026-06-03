@@ -1542,7 +1542,7 @@ function enviarWhatsApp() {
   msg += `📊 *Total sesiones:* ${estadoActual.sesionesCompletadas.length}\n`;
   if (sesion.nota) msg += `📝 *Nota:* ${sesion.nota}\n`;
 
-  const tel = '34649052317'; // Número de Bernat
+  const tel = '34605084948'; // Número de Bernat
   const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
